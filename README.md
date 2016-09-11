@@ -5,3 +5,7 @@ Integrated Arduino UNO R3 function module example.
 
 LED folder has some examples about controling led , like blinking .
 
+2.ServoSweep
+
+ServoSweep has a example about controling servo.
+
