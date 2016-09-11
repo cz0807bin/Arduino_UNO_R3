@@ -7,5 +7,9 @@ LED folder has some examples about controling led , like blinking .
 
 2.ServoSweep
 
-ServoSweep has a example about controling servo.
+ServoSweep folder has a example about controling servo.
+
+3.DS1302
+
+DS1302 folder has two examples about using DS1302 chip to set time.
 
