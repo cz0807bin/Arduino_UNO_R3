@@ -1,0 +1,3 @@
+1.set_clock工程是Arduino提供的设置时钟源码
+
+2.set_clock_advance工程是德飞莱在Arduino提供的源码基础上加了串口设置时钟功能
