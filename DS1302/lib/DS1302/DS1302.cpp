@@ -48,9 +48,11 @@ uint8_t DS1302::_read_in()
 {
   uint8_t input_value = 0;
   uint8_t bit = 0;
+  
   pinMode(_io_pin, INPUT);
 
-  for (int i = 0; i < 8; ++i) {
+  for (int i = 0; i < 8; ++i) 
+  {
     bit = digitalRead(_io_pin);
     input_value |= (bit << i);
 
@@ -67,8 +69,10 @@ uint8_t DS1302::_register_bcd_to_dec(reg_t reg, uint8_t high_bit)
 {
   uint8_t val = read_register(reg);
   uint8_t mask = (1 << (high_bit + 1)) - 1;
+  
   val &= mask;
-  val = (val & 15) + 10 * ((val & (15 << 4)) >> 4);
+  val = (val & 15) + 10*((val & (15 << 4)) >> 4);
+  
   return val;
 }
 
@@ -107,6 +111,7 @@ uint8_t DS1302::read_register(reg_t reg)
 {
   uint8_t cmd_byte = 129;  /* 1000 0001 */
   uint8_t reg_value;
+  
   cmd_byte |= (reg << 1);
 
   digitalWrite(_sclk_pin, LOW);
@@ -144,6 +149,7 @@ void DS1302::write_protect(bool enable)
 void DS1302::halt(bool enable)
 {
   uint8_t sec = read_register(SEC_REG);
+  
   sec &= ~(1 << 7);
   sec |= (enable << 7);
   write_register(SEC_REG, sec);
@@ -151,18 +157,54 @@ void DS1302::halt(bool enable)
 
 void DS1302::TCS(bool enable)
 {
-	if(enable) write_register(TCS_REG, 0xAB); //10101011，充电使能，充电电流最小，串入两个二极管，8kΩ电阻
-	else write_register(TCS_REG, 0);
+	if(enable) //10101011，充电使能，充电电流最小，串入两个二极管，8kΩ电阻
+	{
+		write_register(TCS_REG, 0xAB);	
+	}
+	else
+	{
+		write_register(TCS_REG, 0);	
+	}
 }
 
 void DS1302::TCS_set(int dio, int res)
 {
 	uint8_t tcs = read_register(TCS_REG);
-	if (dio==1) { tcs&=~(1 << 3); tcs|=(1 << 2); } //若串联一个二极管，第五六位设置为01
-	else if (dio==2) { tcs|=(1 << 3); tcs&=~(1 << 2);} //若串联两个二极管，第五六位设置为10
-	if (res==2) { tcs&=~(1 << 1); tcs|=1; }		//若串联2千欧电阻， 第七八位设置为01
-	else if (res==4) { tcs|=(1 << 1); tcs&=~1;} //若串联4千欧电阻， 第七八位设置为10
-	else if (res==8) tcs|=0x03;			//若串联8千欧电阻， 第七八位设置为11
+	
+	if(dio == 1)	//若串联一个二极管，第五六位设置为01
+	{ 
+		tcs &= ~(1 << 3); 
+		tcs |= (1 << 2); 
+	}
+	else if(dio == 2)		 //若串联两个二极管，第五六位设置为10
+	{
+		tcs |= (1 << 3);
+		tcs &= ~(1 << 2);
+	}
+	else
+	{
+		/* nothing to do */
+	}
+	
+	if(res == 2)		//若串联2千欧电阻， 第七八位设置为01
+	{ 
+		tcs &= ~(1 << 1);
+		tcs |= 1;
+	}
+	else if(res == 4)		//若串联4千欧电阻， 第七八位设置为10
+	{ 
+		tcs |= (1 << 1);
+		tcs &= ~1;
+	}
+	else if(res == 8)			//若串联8千欧电阻， 第七八位设置为11
+	{
+		tcs |= 0x03;
+	}
+	else
+	{
+		/* nothing to do */	
+	}
+	
 	write_register(TCS_REG, tcs);
 }
 	
@@ -185,11 +227,17 @@ uint8_t DS1302::hour()
 {
   uint8_t hr = read_register(HR_REG);
   uint8_t adj;
+  
   if (hr & 128)  /* 12-hour mode */
-    adj = 12 * ((hr & 32) >> 5);
+  {
+  	adj = 12*((hr & 32) >> 5);	
+  }
   else           /* 24-hour mode */
-    adj = 10 * ((hr & (32 + 16)) >> 4);
+  {
+  	adj = 10*((hr & (32 + 16)) >> 4);	
+  }
   hr = (hr & 15) + adj;
+  
   return hr;
 }
 
@@ -214,13 +262,14 @@ uint8_t DS1302::day()
 
 uint16_t DS1302::year()
 {
-  return 2000 + _register_bcd_to_dec(YR_REG);
+  return 2000+_register_bcd_to_dec(YR_REG);
 }
 
 
 Time DS1302::time()
 {
   Time t;
+  
   t.sec  = seconds();
   t.min  = minutes();
   t.hr   = hour();
@@ -228,6 +277,7 @@ Time DS1302::time()
   t.mon  = month();
   t.day  = day();
   t.yr   = year();
+  
   return t;
 }
 
